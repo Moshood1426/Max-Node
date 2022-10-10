@@ -1,21 +1,32 @@
-const products = [];
-const rootdir = require("../util/path")
-const path = require("path")
-const fs = require("fs")
+const fs = require("fs");
+const path = require("path");
+const db = require("../util/database");
 
-class Product {
-  constructor(title) {
+const Cart = require("./cart");
+
+module.exports = class Product {
+  constructor(id, title, imageUrl, description, price) {
+    this.id = id;
     this.title = title;
+    this.imageUrl = imageUrl;
+    this.description = description;
+    this.price = price;
   }
 
   save() {
-    const savePath = path.join(rootdir, 'data', 'products')
-    products.push(this);
+    return db.execute(
+      "INSERT INTO products (title, price, description, imageUrl) VALUES (?, ?, ?, ?)",
+      [this.title, this.price, this.description, this.imageUrl]
+    );
   }
+
+  static deleteById() {}
 
   static fetchAll() {
-    return products;
+    return db.execute("SELECT * FROM products");
   }
-}
 
-module.exports = Product;
+  static findById(id) {
+    return db.execute("SELECT * FROM products WHERE products.id = ?", [id]);
+  }
+};
